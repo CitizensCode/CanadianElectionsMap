@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 import os
 
-def percentByPollingDistrict(riding, year, fileFolder):
+def percent_by_polling_district(riding, year, fileFolder):
     fileName = "pollresults_resultatsbureau" + str(riding) + ".csv"
 
     # Directory + Filename
