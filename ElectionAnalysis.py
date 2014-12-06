@@ -76,10 +76,9 @@ stripCharacters = string.ascii_uppercase
 pollData['Polling Station Number'] = pollData['Polling Station Number'].map(lambda x: str(x).strip(stripCharacters))
 
 # Merge polling stations
-pollDataTest = pollData.groupby('Polling Station Number')
-
+pollDataTest = pollData.groupby('Polling Station Number').sum()
 
 # Write out the data
-outFile = "pollresults_resultatsbureau" + str(riding[0]) + "Test001"
-outPath = fileFolder + outFile
+outFile = "pollresults_resultatsbureau" + str(riding[0]) + "Test001.csv"
+outPath = currDir + "/Output/" + outFile
 pollDataTest.to_csv(outPath)
