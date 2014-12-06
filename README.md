@@ -1,4 +1,4 @@
-CanadianElectionsMap
+Canadian Elections Map of Historical Vote Leanings
 ====================
 
 Data analysis for a polling-district-by-polling-district visualization of historical election data.
