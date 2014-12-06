@@ -14,6 +14,7 @@
 
 import os
 import pandas as pd
+from multiprocessing import Process, Queue
 from electionfunctions import percent_by_polling_district
 
 # Data downloaded from this page: http://elections.ca/scripts/resval/ovr_41ge.asp?prov=&lang=e
@@ -34,6 +35,31 @@ ridingList = ridingList.iloc[:,1:3]
 # ridings = [13003, 13008]
 ridings = ridingList.ix[:,1]
 
-for year in years:
-    for riding in ridings:
+#for year in years:
+#    for riding in ridings:
+#        percent_by_polling_district(riding, year, dataFolder)
+
+def worker(work_queue, year):
+    for riding in iter(work_queue.get, 'STOP'):
         percent_by_polling_district(riding, year, dataFolder)
+
+
+def main():
+    workers = 8
+    work_queue = Queue()
+    processes = []
+
+    for riding in ridings:
+        work_queue.put(riding)
+
+    for w in xrange(workers):
+        p = Process(target=worker, args=(work_queue, years[0]))
+        p.start()
+        processes.append(p)
+        work_queue.put('STOP')
+
+    for p in processes:
+        p.join()
+
+if __name__ == '__main__':
+    main()
