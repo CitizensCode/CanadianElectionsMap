@@ -1,7 +1,7 @@
 CanadianElectionsMap
 ====================
 
-Data analysis for a polling district-by-polling district visualization of historical election data.
+Data analysis for a polling-district-by-polling-district visualization of historical election data.
 
 Cedric Sam did some great work a few years ago taking poll-by-poll federal election data and visualizing it, allowing people to quickly view margins of victory, voter turnout and party-by-party votes: http://earth.smurfmatic.net/canada2011/polls/#130031
 
