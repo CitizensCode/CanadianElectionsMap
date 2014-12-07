@@ -2,6 +2,7 @@
 2011/
 *.zip
 Output
+Output2
 
 
 # Byte-compiled / optimized / DLL files
@@ -58,3 +59,5 @@ docs/_build/
 
 # PyBuilder
 target/
+
+.examples.py

@@ -97,12 +97,11 @@ def percent_by_polling_district(riding, year, fileFolder):
     
     # Grab the data we want converted to a percent
     numColsPollData = len(pollData.columns)
-    pollDataPercent = pollData.iloc[:,range(1,numColsPollData-1)]
+    pollDataPercent = pollData.iloc[:,range(1,numColsPollData-1)].copy()
     
     # Divide it by the total votes for each polling district
-    numColsPerData = len(pollDataPercent.columns)
-    for i in range(0,numColsPerData):
-        pollDataPercent.ix[:,i] = pollDataPercent.ix[:,i]/pollData['Vote Totals']
+    pollDataPercent = pollDataPercent.div(pollData['Vote Totals'], axis=0)
+
     pollDataPercent = pollDataPercent*100
     pollDataPercent = np.round(pollDataPercent, decimals=2)
     
