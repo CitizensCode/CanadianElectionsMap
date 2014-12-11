@@ -16,11 +16,11 @@ import pandas as pd
 import numpy as np
 import os
 
-def percent_by_polling_district(riding, year, fileFolder):
+def percent_by_polling_district(riding, year, dataFolder):
     fileName = "pollresults_resultatsbureau" + str(riding) + ".csv"
 
     # Directory + Filename
-    filePath = fileFolder + fileName
+    filePath = os.path.join(dataFolder, fileName)
     # Load the data
     pollData = pd.read_csv(filePath)
     

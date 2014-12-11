@@ -27,10 +27,16 @@ start = datetime.now()
 
 # Create an array for the years we're interested in
 years = [2011]
-dataFolder = os.getcwd() + "/" + str(years[0]) + "/pollresults_resultatsbureau_canada/"
+
+# Used for testing
+# cwd = os.getcwd()
+
+# Get the folder where the data is
+cwd = os.path.dirname(os.path.abspath(__file__))
+dataFolder = os.path.join(cwd, str(years[0]), "pollresults_resultatsbureau_canada")
 
 # Get list of riding numbers
-ridingFile = dataFolder + "table_tableau11.csv"
+ridingFile = os.path.join(dataFolder, "table_tableau11.csv")
 ridingList = pd.read_csv(ridingFile)
 ridingList = ridingList.iloc[:,1:3]
 
