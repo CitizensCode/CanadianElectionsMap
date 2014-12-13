@@ -18,10 +18,12 @@ from multiprocessing import Process, Queue
 from datetime import datetime
 from electionfunctions import percent_by_polling_district
 
-# Data downloaded from this page: http://elections.ca/scripts/resval/ovr_41ge.asp?prov=&lang=e
+# 2011 voting data downloaded from this page: http://elections.ca/scripts/resval/ovr_41ge.asp?prov=&lang=e
 # Specifically, the data for all ridings in the single zip file here: http://elections.ca/scripts/OVR2011/34/data_donnees/pollresults_resultatsbureau_canada.zip
 # Create a folder for the date of the file in your working directory and
 # unzip the file in that directory.
+# Do the same for the 2011 polling districts from:
+# http://geogratis.gc.ca/api/en/nrcan-rncan/ess-sst/c0fdfa13-8851-5ade-abaf-09445d390d31.html
 
 start = datetime.now()
 
