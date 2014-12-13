@@ -2,7 +2,7 @@
 2011/
 *.zip
 Output
-Output2
+OutputComplete
 
 
 # Byte-compiled / optimized / DLL files
@@ -63,3 +63,7 @@ target/
 .examples.py
 
 scrap.py
+
+*.sublime-project
+
+*.sublime-workspace

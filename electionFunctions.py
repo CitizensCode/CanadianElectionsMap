@@ -15,12 +15,13 @@
 import pandas as pd
 import numpy as np
 import os
+from shapefilefunctions import subset_shapefile_by_riding
 
-def percent_by_polling_district(riding, year, dataFolder):
+def percent_by_polling_district(riding, year, pollDistShp, pollDistEnum, dataFolder):
     fileName = "pollresults_resultatsbureau" + str(riding) + ".csv"
 
     # Directory + Filename
-    filePath = os.path.join(dataFolder, fileName)
+    filePath = os.path.join(dataFolder, "pollresults_resultatsbureau_canada", fileName)
     # Load the data
     pollData = pd.read_csv(filePath)
     
@@ -60,29 +61,14 @@ def percent_by_polling_district(riding, year, dataFolder):
     listColDrop = ["Candidate's First Name"]
     listColDrop.extend(["Candidate's Family Name"])
     listColDrop.extend(["Political Affiliation Name"])
-    pollData = pollData.drop(listColDrop, axis=1)
-    
-    # ***There were some anomalies in the data where there were 0 electors
-    # in a polling district, yet there were a positive number of votes cast
-    # so I had to scrap this part ***
-    
-    # Save the polling station number/electors number since they will be 
-    # destroyed when we create a pivot table
-    # pollNumberElectors = pollData[['Polling Station Number', 'Electors for Polling Station']]
-    # pollNumberElectors = pollNumberElectors.drop_duplicates()
-    
+    pollData = pollData.drop(listColDrop, axis=1)    
     
     # Create a pivot table of the data by polling district/candidate name
     pollData = pollData.pivot(index='Polling Station Number', columns='CandidateParty', values='Candidate Poll Votes Count')
     pollData.reset_index(level=0, inplace=True) # Turn the index back into a column
     
-    # *** See note above about data anomalies ***
-    
-    # Merge the newly made pivot table with the electors/poll numbers
-    # pollData = pd.merge(pollData, pollNumberElectors, on="Polling Station Number")
-    
-    # Strip the letters off polling stations since the geodata does not include 
-    # these letters.
+    # Strip the letters off polling stations since the geospatial data does not  
+    # include these letters.
     stripCharacters = "ABCDEFG"
     pollData['Polling Station Number'] = pollData['Polling Station Number'].map(lambda x: str(x).strip(stripCharacters))
     
@@ -115,5 +101,8 @@ def percent_by_polling_district(riding, year, dataFolder):
     
     # Write out the data
     outFile = str(year) + "Results" + str(riding) + ".csv"
-    outPath = os.getcwd() + "/Output/" + outFile
-    pollData.to_csv(outPath, index=False)
+    outPath = os.path.join(os.getcwd(), "Output", outFile)
+    pollData.to_csv(outPath, index=False)    
+    
+    # Subset the shapefile for this riding
+    subset_shapefile_by_riding(pollDistShp, pollDistEnum, riding, dataFolder)

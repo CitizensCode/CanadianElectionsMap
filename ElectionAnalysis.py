@@ -17,6 +17,7 @@ import pandas as pd
 from multiprocessing import Process, Queue
 from datetime import datetime
 from electionfunctions import percent_by_polling_district
+from shapefilefunctions import read_shapefile
 
 # 2011 voting data downloaded from this page: http://elections.ca/scripts/resval/ovr_41ge.asp?prov=&lang=e
 # Specifically, the data for all ridings in the single zip file here: http://elections.ca/scripts/OVR2011/34/data_donnees/pollresults_resultatsbureau_canada.zip
@@ -35,24 +36,29 @@ years = [2011]
 
 # Get the folder where the data is
 cwd = os.path.dirname(os.path.abspath(__file__))
-dataFolder = os.path.join(cwd, str(years[0]), "pollresults_resultatsbureau_canada")
+dataFolder = os.path.join(cwd, str(years[0]))
 
 # Get list of riding numbers
-ridingFile = os.path.join(dataFolder, "table_tableau11.csv")
+ridingFile = os.path.join(dataFolder, "pollresults_resultatsbureau_canada", "table_tableau11.csv")
 ridingList = pd.read_csv(ridingFile)
 ridingList = ridingList.iloc[:,1:3]
+
+# Load the shapefile that has all the polling distrct shapes
+pollDistShp = read_shapefile(years[0], dataFolder)
+# Enumerate so that we can use the index number later when we subset it
+pollDistEnum = list(enumerate(pollDistShp.records()))
 
 # Create an array for the riding IDs we're interested in
 # ridings = [13003, 13008] # For testing at small scale
 ridings = ridingList.ix[:,1]
 
-def worker(work_queue, year):
+def worker(work_queue, year, pollDistShp):
     for riding in iter(work_queue.get, 'STOP'):
-        percent_by_polling_district(riding, year, dataFolder)
+        percent_by_polling_district(riding, year, pollDistShp, pollDistEnum, dataFolder)
 
 
 def main():
-    workers = 8
+    workers = 1
     work_queue = Queue()
     processes = []
 
@@ -60,7 +66,7 @@ def main():
         work_queue.put(riding)
 
     for w in xrange(workers):
-        p = Process(target=worker, args=(work_queue, years[0]))
+        p = Process(target=worker, args=(work_queue, years[0], pollDistShp))
         p.start()
         processes.append(p)
         work_queue.put('STOP')
