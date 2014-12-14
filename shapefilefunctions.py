@@ -29,18 +29,21 @@ def subset_shapefile_by_riding(pollDistShp, pollDistEnum, ridingNum, dataFolder)
     riding = shapefile.Writer(shapeType=shapefile.POLYGON)
     # Copy the original fields
     riding.fields = list(pollDistShp.fields)
+
     subset = []
     for rec in pollDistEnum:
         if rec[1][6] == ridingNum:
             subset.append(rec)
+
     for rec in subset:
         riding._shapes.append(pollDistShp.shape(rec[0]))
         riding.records.append(rec[1])
+
     outDir = os.path.join(dataFolder, "RidingFiles")
     if not os.path.exists(outDir):
         os.makedirs(outDir)
     outFile = os.path.join(outDir, str(ridingNum))
-    print outFile
+    print ridingNum
     riding.save(outFile)
 
 # Testing

@@ -100,9 +100,14 @@ def percent_by_polling_district(riding, year, pollDistShp, pollDistEnum, dataFol
     pollData = pd.concat([pollData,pollDataPercent], axis=1)
     
     # Write out the data
-    outFile = str(year) + "Results" + str(riding) + ".csv"
-    outPath = os.path.join(os.getcwd(), "Output", outFile)
-    pollData.to_csv(outPath, index=False)    
+    outName = str(year) + "Results" + str(riding) + ".csv"
+    outDir = os.path.join(dataFolder, "Output")
+    
+    if not os.path.exists(outDir):
+        os.makedirs(outDir)
+
+    outFile = os.path.join(outDir, outName)
+    pollData.to_csv(outFile, index=False)    
     
     # Subset the shapefile for this riding
     subset_shapefile_by_riding(pollDistShp, pollDistEnum, riding, dataFolder)

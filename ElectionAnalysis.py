@@ -14,7 +14,6 @@
 
 import os
 import pandas as pd
-from multiprocessing import Process, Queue
 from datetime import datetime
 from electionfunctions import percent_by_polling_district
 from shapefilefunctions import read_shapefile
@@ -52,28 +51,10 @@ pollDistEnum = list(enumerate(pollDistShp.records()))
 # ridings = [13003, 13008] # For testing at small scale
 ridings = ridingList.ix[:,1]
 
-def worker(work_queue, year, pollDistShp):
-    for riding in iter(work_queue.get, 'STOP'):
-        percent_by_polling_district(riding, year, pollDistShp, pollDistEnum, dataFolder)
-
-
 def main():
-    workers = 1
-    work_queue = Queue()
-    processes = []
-
     for riding in ridings:
-        work_queue.put(riding)
-
-    for w in xrange(workers):
-        p = Process(target=worker, args=(work_queue, years[0], pollDistShp))
-        p.start()
-        processes.append(p)
-        work_queue.put('STOP')
-
-    for p in processes:
-        p.join()
-
+        percent_by_polling_district(riding, years[0], pollDistShp, pollDistEnum, dataFolder)
+    
     end = datetime.now()
     print end - start
 
