@@ -15,7 +15,7 @@
 import pandas as pd
 import numpy as np
 import os
-from shapefilefunctions import subset_shapefile_by_riding
+from shapefilefunctions import create_riding_shapefile
 
 def percent_by_polling_district(riding, year, pollDistShp, pollDistEnum, dataFolder):
     fileName = "pollresults_resultatsbureau" + str(riding) + ".csv"
@@ -100,14 +100,14 @@ def percent_by_polling_district(riding, year, pollDistShp, pollDistEnum, dataFol
     pollData = pd.concat([pollData,pollDataPercent], axis=1)
     
     # Write out the data
-    outName = str(year) + "Results" + str(riding) + ".csv"
-    outDir = os.path.join(dataFolder, "Output")
-    
-    if not os.path.exists(outDir):
-        os.makedirs(outDir)
+    # outName = str(year) + "Results" + str(riding) + ".csv"
+    # outDir = os.path.join(dataFolder, "Output")
 
-    outFile = os.path.join(outDir, outName)
-    pollData.to_csv(outFile, index=False)    
+    # if not os.path.exists(outDir):
+    #    os.makedirs(outDir)
+
+    # outFile = os.path.join(outDir, outName)
+    # pollData.to_csv(outFile, index=False)    
     
-    # Subset the shapefile for this riding
-    subset_shapefile_by_riding(pollDistShp, pollDistEnum, riding, dataFolder)
+    # Create the shapefile for this riding with data appended
+    create_riding_shapefile(pollDistShp, pollDistEnum, riding, dataFolder, pollData)

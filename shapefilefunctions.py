@@ -24,20 +24,25 @@ def read_shapefile(year, dataFolder):
     return shapefile.Reader(filePath)
 
 
-def subset_shapefile_by_riding(pollDistShp, pollDistEnum, ridingNum, dataFolder):
+def create_riding_shapefile(pollDistShp, pollDistEnum, ridingNum, dataFolder, pollData):
+    
     # Create writer
     riding = shapefile.Writer(shapeType=shapefile.POLYGON)
     # Copy the original fields
     riding.fields = list(pollDistShp.fields)
 
+    # Get the subset of the shapefile for the riding
     subset = []
     for rec in pollDistEnum:
         if rec[1][6] == ridingNum:
             subset.append(rec)
 
+    # Add all the shapes and records to the file
     for rec in subset:
         riding._shapes.append(pollDistShp.shape(rec[0]))
         riding.records.append(rec[1])
+
+
 
     outDir = os.path.join(dataFolder, "RidingFiles")
     if not os.path.exists(outDir):
@@ -45,13 +50,3 @@ def subset_shapefile_by_riding(pollDistShp, pollDistEnum, ridingNum, dataFolder)
     outFile = os.path.join(outDir, str(ridingNum))
     print ridingNum
     riding.save(outFile)
-
-# Testing
-#years = [2011]
-#cwd = os.getcwd()
-#dataFolder = os.path.join(cwd, str(years[0]))
-#
-#pollSF = read_shapefile(years[0], dataFolder)
-#pollDistEnum = list(enumerate(pollSF.records()))
-#
-#subset_shapefile_by_riding(pollSF, pollDistEnum, 13008, dataFolder)

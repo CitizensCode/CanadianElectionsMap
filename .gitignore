@@ -67,3 +67,5 @@ scrap.py
 *.sublime-project
 
 *.sublime-workspace
+
+testing.py

@@ -48,13 +48,13 @@ pollDistShp = read_shapefile(years[0], dataFolder)
 pollDistEnum = list(enumerate(pollDistShp.records()))
 
 # Create an array for the riding IDs we're interested in
-# ridings = [13003, 13008] # For testing at small scale
-ridings = ridingList.ix[:,1]
+ridings = [13003, 13008] # For testing at small scale
+# ridings = ridingList.ix[:,1]
 
 def main():
     for riding in ridings:
         percent_by_polling_district(riding, years[0], pollDistShp, pollDistEnum, dataFolder)
-    
+
     end = datetime.now()
     print end - start
 
