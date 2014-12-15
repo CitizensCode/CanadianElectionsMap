@@ -71,8 +71,8 @@ def df2dbf(df, dbf_path, my_specs=None):
     else:
         type2spec = {int: ('N', 20, 0),
                      np.int64: ('N', 20, 0),
-                     float: ('N', 36, 15),
-                     np.float64: ('N', 36, 15),
+                     float: ('N', 36, 2),
+                     np.float64: ('N', 36, 2),
                      str: ('C', 14, 0),
                      object: ('C', 14, 0)
                      }

@@ -128,8 +128,13 @@ def percent_by_polling_district(riding, year):
     dbfDF = dbf2df(dbfFile)
     # Keep only the columns we need to merge
     dbfDF = dbfDF[["EMRP_NAME", "FED_NUM", "POLL_NAME"]]
-    df2dbf(dbfDF, dbfFile)
-    # set_trace()
+
+    # Merge the two sets together
+    left = "EMRP_NAME"
+    right = "Polling Station Number"
+    merged = pd.merge(dbfDF, pollData, left_on=left, right_on=right)
+    df2dbf(merged, dbfFile)
+    #set_trace()
     print(riding)
 
 
@@ -178,3 +183,4 @@ ridings = ridingList.ix[:, 1] # The full list
 
 for riding in ridings:
     percent_by_polling_district(riding, years[0])
+
