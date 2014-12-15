@@ -16,6 +16,7 @@ import os
 import pandas as pd
 import numpy as np
 import shapefile
+from dataIO import df2dbf, dbf2df
 
 # Create an array for the years we're interested in
 years = [2011]
@@ -119,18 +120,17 @@ def percent_by_polling_district(riding, year):
     # Merge it with the original data set
     pollData = pd.concat([pollData, pollDataPercent], axis=1)
 
-    # Write out the data
-    # outName = str(year) + "Results" + str(riding) + ".csv"
-    # outDir = os.path.join(dataFolder, "Output")
-
-    # if not os.path.exists(outDir):
-    #    os.makedirs(outDir)
-
-    # outFile = os.path.join(outDir, outName)
-    # pollData.to_csv(outFile, index=False)
-
     # Create the shapefile for this riding with data appended
-    create_riding_shapefile(riding, pollData)
+    outFile = create_riding_shapefile(riding, pollData)
+
+    # Load the dbf part of the shapefile into a data frame
+    dbfFile = outFile + ".dbf"
+    dbfDF = dbf2df(dbfFile)
+    # Keep only the columns we need to merge
+    dbfDF = dbfDF[["EMRP_NAME", "FED_NUM", "POLL_NAME"]]
+    df2dbf(dbfDF, dbfFile)
+    # set_trace()
+    print(riding)
 
 
 def read_shapefile(year):
@@ -163,8 +163,8 @@ def create_riding_shapefile(ridingNum, pollData):
     if not os.path.exists(outDir):
         os.makedirs(outDir)
     outFile = os.path.join(outDir, str(ridingNum))
-    print(ridingNum)
     riding.save(outFile)
+    return outFile
 
 
 # Load the shapefile that has all the polling district shapes
@@ -173,8 +173,8 @@ pollDistShp = read_shapefile(years[0])
 pollDistEnum = list(enumerate(pollDistShp.records()))
 
 # Create an array for the riding IDs we're interested in
-ridings = [13003, 13008]  # For testing at small scale
-# ridings = ridingList.ix[:, 1] # The full list
+# ridings = [13003, 13008]  # For testing at small scale
+ridings = ridingList.ix[:, 1] # The full list
 
 for riding in ridings:
     percent_by_polling_district(riding, years[0])
