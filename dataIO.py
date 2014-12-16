@@ -1,7 +1,7 @@
 # Copyright (c) 2007-2011, GeoDa Center for Geospatial Analysis and Computation
 # All rights reserved.
 
-# SOURCE: https://github.com/GeoDaSandbox/sandbox/blob/master/pyGDsandbox/dataIO.pyp
+# SOURCE: https://github.com/GeoDaSandbox/sandbox/blob/master/pyGDsandbox/dataIO.py
 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
