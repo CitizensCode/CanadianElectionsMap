@@ -15,15 +15,42 @@
 import os
 import pandas as pd
 import numpy as np
+import urllib
+import zipfile
 import shapefile as sf
 from dataIO import df2dbf, dbf2df
 
 # Create an array for the years we're interested in
 years = [2011]
+urls = {"pollDivs" : 
+            {2011:"http://elections.ca/scripts/OVR2011/34/data_donnees/pollresults_resultatsbureau_canada.zip"},
+        "geodata" : 
+            {2011:"http://ftp2.cits.rncan.gc.ca/pub/geott/electoral/2011/pd308.2011.zip"}}
 
 # Get the folder where the data is
 cwd = os.path.dirname(os.path.abspath(__file__))
 dataFolder = os.path.join(cwd, str(years[0]))
+if not os.path.exists(dataFolder):
+        os.makedirs(dataFolder)
+
+
+def download_extract(url, year):
+    pollFile = os.path.join(dataFolder, url.split("/")[-1])
+    if not os.path.isfile(pollFile):
+        print("Downloading.")
+        urllib.urlretrieve(url, pollFile)
+        # Takes the filename out of the url
+        d = os.path.join(dataFolder, "".join(url.split("/")[-1].split(".")[:-1]))
+        os.makedirs(d)
+        # Unzips it
+        with zipfile.ZipFile(pollFile) as zf:
+            zf.extractall(d)
+        print("Download and extraction complete.")
+
+download_extract(urls["pollDivs"][2011], 2011)
+download_extract(urls["geodata"][2011], 2011)
+
+set_trace()
 
 # Get list of riding numbers
 folderName = "pollresults_resultatsbureau_canada"
