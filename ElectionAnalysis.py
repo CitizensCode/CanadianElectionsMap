@@ -18,6 +18,7 @@ import numpy as np
 import urllib
 import zipfile
 import shapefile as sf
+import fiona
 from dataIO import df2dbf, dbf2df
 
 # Create an array for the years we're interested in
@@ -163,7 +164,7 @@ def percent_by_polling_district(riding, year):
     print(riding)
 
 
-def read_shapefile(year):
+def get_shapefile_loc(year):
     """ Read in a shapefile and return it """
     fileName = "pd_a"
     filePath = os.path.join(dataFolder, "pd308.2011", fileName)
@@ -176,51 +177,46 @@ def read_shapefile(year):
         command = ("ogr2ogr -t_srs EPSG:3857 '" +
                    wmFilePath + "' '" + filePath + "'")
         os.system(command)
-        print("Done conversion.")
+        print("Finished conversion.")
 
     # Return the entire shapefile of polling districts
-    return sf.Reader(wmFilePath)
-
-# Set the projection for Mapbox
-prj = 'PROJCS[ "WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["X",EAST],AXIS["Y",NORTH],EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"],AUTHORITY["EPSG","3857"]]'
+    return wmFilePath
 
 
 def create_riding_shapefile(ridingNum, pollData):
-    # Create writer
-    riding = sf.Writer(shapeType=sf.POLYGON)
-    # Copy the original fields
-    riding.fields = list(pollDistShp.fields)
+    source = fiona.open(pollDistShpLoc)
+    source_driver = source.driver
+    source_crs = source.crs
+    source_schema = source.schema
 
-    # Get the subset of the shapefile for the riding
-    subset = []
-    for rec in pollDistEnum:
-        if rec[1][6] == ridingNum:
-            subset.append(rec)
+    def riding_id_match(record):
+        return record['properties'].get('FED_NUM') == ridingNum
 
-    # Add all the shapes and records to the file
-    for rec in subset:
-        riding._shapes.append(pollDistShp.shape(rec[0]))
-        riding.records.append(rec[1])
+    riding = filter(riding_id_match, source)
+    source.close()
 
     outDir = os.path.join(dataFolder, "RidingFiles")
     if not os.path.exists(outDir):
         os.makedirs(outDir)
     outFile = os.path.join(outDir, str(ridingNum))
-    riding.save(outFile)
-
-    # Create the prj file
-    prjfile = open("%s.prj" % outFile, 'w')
-    prjfile.write(prj)
-    prjfile.close()
-    # set_trace()
+    out = fiona.open(
+        outFile + ".shp",
+        'w',
+        driver=source_driver,
+        crs=source_crs,
+        schema=source_schema)
+    out.writerecords(riding)
+    out.close()
+    # set_trace() # IPython function used for debugging
     return outFile
 
 
 # Load the shapefile that has all the polling district shapes
-pollDistShp = read_shapefile(years[0])
+pollDistShpLoc = get_shapefile_loc(years[0])
+# set_trace()
 
 # Enumerate so that we can use the index number later when we subset it
-pollDistEnum = list(enumerate(pollDistShp.records()))
+# pollDistEnum = list(enumerate(pollDistShp.records()))
 
 # Create an array for the riding IDs we're interested in
 ridings = [13003, 13008]  # For testing at small scale
