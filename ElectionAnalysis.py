@@ -22,10 +22,10 @@ from dataIO import df2dbf, dbf2df
 
 # Create an array for the years we're interested in
 years = [2011]
-urls = {"pollDivs" : 
-            {2011:"http://elections.ca/scripts/OVR2011/34/data_donnees/pollresults_resultatsbureau_canada.zip"},
+urls = {"pollDivs":
+            {2011: "http://elections.ca/scripts/OVR2011/34/data_donnees/pollresults_resultatsbureau_canada.zip"},
         "geodata" : 
-            {2011:"http://ftp2.cits.rncan.gc.ca/pub/geott/electoral/2011/pd308.2011.zip"}}
+            {2011: "http://ftp2.cits.rncan.gc.ca/pub/geott/electoral/2011/pd308.2011.zip"}}
 
 # Get the folder where the data is
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -35,6 +35,7 @@ if not os.path.exists(dataFolder):
 
 
 def download_extract(url, year):
+    """Downloads and extracts the data"""
     pollFile = os.path.join(dataFolder, url.split("/")[-1])
     if not os.path.isfile(pollFile):
         print("Downloading.")
@@ -49,8 +50,6 @@ def download_extract(url, year):
 
 download_extract(urls["pollDivs"][2011], 2011)
 download_extract(urls["geodata"][2011], 2011)
-
-set_trace()
 
 # Get list of riding numbers
 folderName = "pollresults_resultatsbureau_canada"
@@ -168,9 +167,19 @@ def read_shapefile(year):
     """ Read in a shapefile and return it """
     fileName = "pd_a"
     filePath = os.path.join(dataFolder, "pd308.2011", fileName)
+    wmFilePath = filePath + "WM.shp"
+    filePath += ".shp"
+    # Checks to see if the file has been converted to Web Mercator
+    # If not, it converts it
+    if (not os.path.isfile(wmFilePath)):
+        print("Converting shapefile to Web Mercator.")
+        command = ("ogr2ogr -t_srs EPSG:3857 '" +
+                   wmFilePath + "' '" + filePath + "'")
+        os.system(command)
+        print("Done conversion.")
 
     # Return the entire shapefile of polling districts
-    return sf.Reader(filePath)
+    return sf.Reader(wmFilePath)
 
 # Set the projection for Mapbox
 prj = 'PROJCS[ "WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["X",EAST],AXIS["Y",NORTH],EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"],AUTHORITY["EPSG","3857"]]'
@@ -209,13 +218,13 @@ def create_riding_shapefile(ridingNum, pollData):
 
 # Load the shapefile that has all the polling district shapes
 pollDistShp = read_shapefile(years[0])
+
 # Enumerate so that we can use the index number later when we subset it
 pollDistEnum = list(enumerate(pollDistShp.records()))
 
 # Create an array for the riding IDs we're interested in
-# ridings = [13003, 13008]  # For testing at small scale
-ridings = ridingList.ix[:, 1] # The full list
+ridings = [13003, 13008]  # For testing at small scale
+# ridings = ridingList.ix[:, 1]  # The full list
 
 for riding in ridings:
     percent_by_polling_district(riding, years[0])
-
