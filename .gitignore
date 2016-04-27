@@ -3,6 +3,7 @@
 *.zip
 Output
 OutputComplete
+*.pdf
 
 
 # Byte-compiled / optimized / DLL files
